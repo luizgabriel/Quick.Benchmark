@@ -35,3 +35,20 @@ TEST(Matrix, RandomFill)
 
   EXPECT_NE(matrix.at(0, 0), 0);
 }
+
+TEST(Matrix, SetValue)
+{
+  constexpr size_t matrixSize = 10;
+  constexpr uint32_t someValue = 12;
+  auto matrix = Matrix<uint32_t>{ matrixSize };
+  fill(matrix, someValue);
+
+  matrix.at(2, 3) = 5;
+
+  EXPECT_EQ(matrix.at(2, 3), 5);
+  EXPECT_NE(matrix.at(3, 2), 5);
+  EXPECT_EQ(matrix.at(3, 3), someValue);
+  EXPECT_EQ(matrix.at(9, 9), someValue);
+  ASSERT_ANY_THROW(matrix.at(10, 10));
+  ASSERT_ANY_THROW(matrix.at(11, 11));
+}

@@ -1,2 +1,2 @@
-add_library(TCC.Library INTERFACE  include/tcc/Matrix.h include/tcc/MatrixUtils.h)
+add_library(TCC.Library INTERFACE)
 target_include_directories(TCC.Library INTERFACE include)
