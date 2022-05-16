@@ -34,15 +34,7 @@ project(
 
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 include(CTest)
-
-set(GIT_SHA
-    "Unknown"
-    CACHE STRING "SHA this build was generated from")
-string(
-  SUBSTRING "${GIT_SHA}"
-            0
-            8
-            GIT_SHORT_SHA)
+enable_testing()
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
@@ -96,12 +88,6 @@ if(BUILDING_MULTI_CONFIG)
 endif()
 
 # Adding the src:
-add_subdirectory(src)
-
-# Adding the tests:
-option(ENABLE_TESTING "Enable the tests" ${PROJECT_IS_TOP_LEVEL})
-if(ENABLE_TESTING)
-  enable_testing()
-  message(AUTHOR_WARNING "Building Tests. Be sure to check out test/constexpr_tests.cpp for constexpr testing")
-  # add_subdirectory(test)
-endif()
+add_subdirectory(lib)
+add_subdirectory(benchmark)
+add_subdirectory(test)

@@ -1,5 +1,6 @@
 [requires]
 benchmark/1.6.1
+gtest/1.10.0
 
 [generators]
 cmake_find_package_multi
