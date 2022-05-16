@@ -2,33 +2,33 @@
 
 #include <vector>
 
-template<typename T>
 struct Matrix
 {
-  std::vector<T> mData;
-  size_t numColumns{};
+public:
+  using ValueType = float;
 
-  constexpr explicit Matrix(size_t size) : Matrix{ size, size } {}
-
-  constexpr Matrix(size_t numRows, size_t numColumns) : mData{}, numColumns{ numColumns }
+  [[nodiscard]] const auto &at(size_t rowIndex, size_t colIndex) const
   {
-    mData.resize(numRows * numColumns);
+    return mData.at((mRows * rowIndex) + colIndex);
   }
 
-  const T &at(size_t row, size_t column) const { return mData.at(column + numColumns * row); }
+  auto &at(size_t rowIndex, size_t colIndex) { return mData.at((mRows * rowIndex) + colIndex); }
 
-  T &at(size_t row, size_t column) { return mData.at(column + numColumns * row); }
+  [[nodiscard]] auto begin() const { return mData.begin(); }
 
-  auto begin() const { return mData.begin(); }
-
-  auto end() const { return mData.end(); }
+  [[nodiscard]] auto end() const { return mData.end(); }
 
   auto begin() { return mData.begin(); }
 
   auto end() { return mData.end(); }
 
-  auto data() const { return mData.data(); }
+  [[nodiscard]] size_t rows() const { return mRows; }
+  [[nodiscard]] size_t cols() const { return mCols; }
 
-  [[nodiscard]] size_t rows() const { return mData.size() / numColumns; }
-  [[nodiscard]] size_t cols() const { return numColumns; }
+  explicit Matrix(size_t size) : mRows{ size }, mCols{ size } { mData.resize(mRows * mCols); }
+
+private:
+  size_t mRows;
+  size_t mCols;
+  std::vector<ValueType> mData;
 };

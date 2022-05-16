@@ -5,18 +5,14 @@
 #include <limits>
 #include <random>
 
-template<typename T>
-void fill(Matrix<T> &matrix, T value)
-{
-  std::fill(matrix.begin(), matrix.end(), value);
-}
+void fill(Matrix &matrix, Matrix::ValueType value) { std::fill(matrix.begin(), matrix.end(), value); }
 
-template<typename T>
-void fillRandom(Matrix<T> &matrix, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max())
+void fillRandom(Matrix &matrix,
+  Matrix::ValueType min = std::numeric_limits<Matrix::ValueType>::min(),
+  Matrix::ValueType max = std::numeric_limits<Matrix::ValueType>::max())
 {
   auto randomDevice = std::random_device{};
   auto generator = std::mt19937{ randomDevice() };
-  auto distrib = std::uniform_int_distribution<T>(min, max);
-
+  auto distrib = std::uniform_real_distribution<Matrix::ValueType>(min, max);
   std::generate(matrix.begin(), matrix.end(), [&]() { return distrib(generator); });
 }

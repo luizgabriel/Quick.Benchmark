@@ -1,45 +1,53 @@
-#include <tcc/MatrixUtils.h>
 #include <benchmark/benchmark.h>
 #include <tcc/Matrix.h>
+#include <tcc/MatrixUtils.h>
 
-size_t RowMajor_sumElements(const Matrix<uint32_t> &matrix)
+Matrix::ValueType ColumnMajor_sumElements(const Matrix &matrix)
 {
-  size_t sum = 0;
-  for (auto col = 0; col < matrix.cols(); col++) {
-    for (auto row = 0; row < matrix.rows(); row++) {
-      benchmark::DoNotOptimize(sum += matrix.at(row, col));
+  auto total = .0f;
+  for (size_t col = 0; col < matrix.cols(); col++) {
+    for (size_t row = 0; row < matrix.rows(); row++) {
+      benchmark::DoNotOptimize(total += matrix.at(row, col));
     }
   }
 
-  return sum;
+  return total;
 }
 
-size_t ColumnMajor_sumElements(const Matrix<uint32_t> &matrix)
+Matrix::ValueType  RowMajor_sumElements(const Matrix &matrix)
 {
-  size_t sum = 0;
-  for (auto row = 0; row < matrix.rows(); row++) {
-    for (auto col = 0; col < matrix.cols(); col++) {
-      benchmark::DoNotOptimize(sum += matrix.at(row, col));
+  auto total = .0f;
+  for (size_t row = 0; row < matrix.rows(); row++) {
+    for (size_t col = 0; col < matrix.cols(); col++) {
+      benchmark::DoNotOptimize(total += matrix.at(row, col));
     }
   }
 
-  return sum;
+  return total;
 }
 
 static void BM_ColumnMajor_sumElements(benchmark::State &state)
 {
-  auto matrix = Matrix<uint32_t>{ static_cast<size_t>(state.range(0)) };
-  fillRandom<uint32_t>(matrix, 0, 3);
+  state.SetComplexityN(state.range(0));
+  auto matrix = Matrix{ static_cast<size_t>(state.range(0)) };
+  fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) { ColumnMajor_sumElements(matrix); }
 }
-BENCHMARK(BM_ColumnMajor_sumElements)->RangeMultiplier(2)->Range(8, 8 << 12);
+
+BENCHMARK(BM_ColumnMajor_sumElements)
+  ->DenseRange(1, 2048, 10)
+  ->Complexity(benchmark::oNSquared);
 
 static void BM_RowMajor_sumElements(benchmark::State &state)
 {
-  auto matrix = Matrix<uint32_t>{ static_cast<size_t>(state.range(0)) };
-  fillRandom<uint32_t>(matrix, 0, 3);
+  state.SetComplexityN(state.range(0));
+  auto matrix = Matrix{ static_cast<size_t>(state.range(0)) };
+  fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) { RowMajor_sumElements(matrix); }
 }
-BENCHMARK(BM_RowMajor_sumElements)->RangeMultiplier(2)->Range(8, 8 << 12);
+
+BENCHMARK(BM_RowMajor_sumElements)
+  ->DenseRange(1, 2048, 10)
+  ->Complexity(benchmark::oNSquared);
