@@ -5,7 +5,7 @@
 struct Matrix
 {
 public:
-  using ValueType = float;
+  using ValueType = double;
 
   [[nodiscard]] const auto &at(size_t rowIndex, size_t colIndex) const
   {

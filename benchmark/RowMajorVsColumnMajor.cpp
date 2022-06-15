@@ -38,8 +38,8 @@ static void BM_ColumnMajor_sumElements(benchmark::State &state)
 }
 
 constexpr auto testScale = 1'000;
-constexpr auto testStep = testScale / 10;
-constexpr auto testLimit = testScale * 2 + 1;
+constexpr auto testStep = testScale / 5;
+constexpr auto testLimit = testScale * 8 + 1;
 
 BENCHMARK(BM_ColumnMajor_sumElements)
   ->DenseRange(1, testLimit, testStep)
