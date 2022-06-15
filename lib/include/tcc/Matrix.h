@@ -9,10 +9,10 @@ public:
 
   [[nodiscard]] const auto &at(size_t rowIndex, size_t colIndex) const
   {
-    return mData.at((mRows * rowIndex) + colIndex);
+    return mData.at(getInternalIndex(rowIndex, colIndex));
   }
 
-  auto &at(size_t rowIndex, size_t colIndex) { return mData.at((mRows * rowIndex) + colIndex); }
+  auto &at(size_t rowIndex, size_t colIndex) { return mData.at((mSize * rowIndex) + colIndex); }
 
   [[nodiscard]] auto begin() const { return mData.begin(); }
 
@@ -22,13 +22,23 @@ public:
 
   auto end() { return mData.end(); }
 
-  [[nodiscard]] size_t rows() const { return mRows; }
-  [[nodiscard]] size_t cols() const { return mCols; }
+  [[nodiscard]] size_t rows() const { return mSize; }
+  [[nodiscard]] size_t cols() const { return mSize; }
 
-  explicit Matrix(size_t size) : mRows{ size }, mCols{ size } { mData.resize(mRows * mCols); }
+  explicit Matrix(size_t size) : mSize{ size } { mData.resize(mSize * mSize); }
+
+  explicit Matrix(size_t size, ValueType value) : mSize{ size }
+  {
+    mData.resize(mSize * mSize);
+    std::fill(mData.begin(), mData.end(), value);
+  }
 
 private:
-  size_t mRows;
-  size_t mCols;
+  size_t mSize;
   std::vector<ValueType> mData;
+
+  [[nodiscard]] size_t getInternalIndex(size_t rowIndex, size_t colIndex) const
+  {
+    return (mSize * rowIndex) + colIndex;
+  }
 };

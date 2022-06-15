@@ -14,7 +14,7 @@ Matrix::ValueType ColumnMajor_sumElements(const Matrix &matrix)
   return total;
 }
 
-Matrix::ValueType  RowMajor_sumElements(const Matrix &matrix)
+Matrix::ValueType RowMajor_sumElements(const Matrix &matrix)
 {
   auto total = .0f;
   for (size_t row = 0; row < matrix.rows(); row++) {
@@ -28,26 +28,34 @@ Matrix::ValueType  RowMajor_sumElements(const Matrix &matrix)
 
 static void BM_ColumnMajor_sumElements(benchmark::State &state)
 {
-  state.SetComplexityN(state.range(0));
-  auto matrix = Matrix{ static_cast<size_t>(state.range(0)) };
+  const auto size = state.range(0);
+  state.SetComplexityN(size);
+
+  auto matrix = Matrix{ static_cast<size_t>(size) };
   fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) { ColumnMajor_sumElements(matrix); }
 }
 
+constexpr auto testScale = 1'000;
+constexpr auto testStep = testScale / 10;
+constexpr auto testLimit = testScale * 8;
+
 BENCHMARK(BM_ColumnMajor_sumElements)
-  ->DenseRange(1, 2048, 10)
+  ->DenseRange(0, testLimit, testStep)
   ->Complexity(benchmark::oNSquared);
 
 static void BM_RowMajor_sumElements(benchmark::State &state)
 {
-  state.SetComplexityN(state.range(0));
-  auto matrix = Matrix{ static_cast<size_t>(state.range(0)) };
+  const auto size = state.range(0);
+  state.SetComplexityN(size);
+
+  auto matrix = Matrix{ static_cast<size_t>(size) };
   fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) { RowMajor_sumElements(matrix); }
 }
 
 BENCHMARK(BM_RowMajor_sumElements)
-  ->DenseRange(1, 2048, 10)
+  ->DenseRange(0, testLimit, testStep)
   ->Complexity(benchmark::oNSquared);

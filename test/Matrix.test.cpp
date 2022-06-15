@@ -15,8 +15,7 @@ TEST(Matrix, Fill)
 {
   constexpr size_t matrixSize = 10;
   constexpr uint32_t someValue = 12;
-  auto matrix = Matrix{ matrixSize };
-  fill(matrix, someValue);
+  auto matrix = Matrix{ matrixSize, someValue };
 
   EXPECT_EQ(matrix.at(0, 0), someValue);
   EXPECT_EQ(matrix.at(3, 3), someValue);
@@ -40,9 +39,7 @@ TEST(Matrix, SetValue)
 {
   constexpr size_t matrixSize = 10;
   constexpr uint32_t someValue = 12;
-  auto matrix = Matrix{ matrixSize };
-  fill(matrix, someValue);
-
+  auto matrix = Matrix{ matrixSize, someValue };
   matrix.at(2, 3) = 5;
 
   EXPECT_EQ(matrix.at(2, 3), 5);
