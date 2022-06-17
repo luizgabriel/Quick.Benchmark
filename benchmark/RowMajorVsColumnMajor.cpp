@@ -2,60 +2,64 @@
 #include <tcc/Matrix.h>
 #include <tcc/MatrixUtils.h>
 
-Matrix::ValueType ColumnMajor_sumElements(const Matrix &matrix)
+static size_t BM_SetupState(benchmark::State &state)
 {
-  auto total = .0f;
-  for (size_t col = 0; col < matrix.cols(); col++) {
-    for (size_t row = 0; row < matrix.rows(); row++) {
-      benchmark::DoNotOptimize(total += matrix.at(row, col));
-    }
-  }
+  const auto size = state.range(0);
+  const auto sizeInBytes = size * size * sizeof(Matrix::ValueType);
 
-  return total;
-}
+  state.SetComplexityN(size);
+  state.SetLabel(std::to_string(sizeInBytes / 1024) + " Kb");
 
-Matrix::ValueType RowMajor_sumElements(const Matrix &matrix)
-{
-  auto total = .0f;
-  for (size_t row = 0; row < matrix.rows(); row++) {
-    for (size_t col = 0; col < matrix.cols(); col++) {
-      benchmark::DoNotOptimize(total += matrix.at(row, col));
-    }
-  }
-
-  return total;
+  return static_cast<size_t>(size);
 }
 
 static void BM_ColumnMajor_sumElements(benchmark::State &state)
 {
-  const auto size = state.range(0);
-  state.SetComplexityN(size);
-
-  auto matrix = Matrix{ static_cast<size_t>(size) };
+  auto size = BM_SetupState(state);
+  auto matrix = Matrix{ size, size };
   fillRandom(matrix, .0F, 1.0F);
 
-  for (auto _ : state) { ColumnMajor_sumElements(matrix); }
+  for (auto _ : state) {
+    auto total = Matrix::ValueType{};
+    for (size_t col = 0; col < matrix.cols(); col++) {
+      for (size_t row = 0; row < matrix.rows(); row++) {
+        benchmark::DoNotOptimize(total += matrix.at(row, col));
+      }
+    }
+    benchmark::DoNotOptimize(total);
+  }
+
+  state.SetItemsProcessed(matrix.size() * state.iterations());
 }
-
-constexpr auto testScale = 1'000;
-constexpr auto testStep = testScale / 5;
-constexpr auto testLimit = testScale * 8 + 1;
-
-BENCHMARK(BM_ColumnMajor_sumElements)
-  ->DenseRange(1, testLimit, testStep)
-  ->Complexity(benchmark::oNSquared);
 
 static void BM_RowMajor_sumElements(benchmark::State &state)
 {
-  const auto size = state.range(0);
-  state.SetComplexityN(size);
+  auto size = BM_SetupState(state);
 
-  auto matrix = Matrix{ static_cast<size_t>(size) };
+  auto matrix = Matrix{ size, size };
   fillRandom(matrix, .0F, 1.0F);
 
-  for (auto _ : state) { RowMajor_sumElements(matrix); }
+  for (auto _ : state) {
+    auto total = Matrix::ValueType{};
+    for (size_t row = 0; row < matrix.rows(); row++) {
+      for (size_t col = 0; col < matrix.cols(); col++) {
+        benchmark::DoNotOptimize(total += matrix.at(row, col));
+      }
+    }
+    benchmark::DoNotOptimize(total);
+  }
+
+  state.SetItemsProcessed(matrix.size() * state.iterations());
 }
 
+constexpr auto testMin = 1 << 4;
+constexpr auto testStep = 1 << 2;
+constexpr auto testMax = testMin + 64 * testStep;
+
+BENCHMARK(BM_ColumnMajor_sumElements)
+  ->Complexity(benchmark::BigO::oNSquared)
+  ->DenseRange(testMin, testMax, testStep);
+
 BENCHMARK(BM_RowMajor_sumElements)
-  ->DenseRange(1, testLimit, testStep)
-  ->Complexity(benchmark::oNSquared);
+  ->Complexity(benchmark::BigO::oNSquared)
+  ->DenseRange(testMin, testMax, testStep);
