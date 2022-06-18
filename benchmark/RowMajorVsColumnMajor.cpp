@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <tcc/Matrix.h>
 #include <tcc/MatrixUtils.h>
+#include <fmt/format.h>
 
 static size_t BM_SetupState(benchmark::State &state)
 {
@@ -8,7 +9,7 @@ static size_t BM_SetupState(benchmark::State &state)
   const auto sizeInBytes = size * size * sizeof(Matrix::ValueType);
 
   state.SetComplexityN(size);
-  state.SetLabel(std::to_string(sizeInBytes / 1024) + " Kb");
+  state.SetLabel(fmt::format("{} Kb ({}x{} matrix)", sizeInBytes / 1024, size, size));
 
   return static_cast<size_t>(size);
 }
@@ -20,6 +21,7 @@ static void BM_ColumnMajor_sumElements(benchmark::State &state)
   fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) {
+    benchmark::ClobberMemory();
     auto total = Matrix::ValueType{};
     for (size_t col = 0; col < matrix.cols(); col++) {
       for (size_t row = 0; row < matrix.rows(); row++) {
@@ -29,6 +31,7 @@ static void BM_ColumnMajor_sumElements(benchmark::State &state)
     benchmark::DoNotOptimize(total);
   }
 
+  state.SetBytesProcessed(matrix.size() * sizeof(Matrix::ValueType) * state.iterations());
   state.SetItemsProcessed(matrix.size() * state.iterations());
 }
 
@@ -40,6 +43,7 @@ static void BM_RowMajor_sumElements(benchmark::State &state)
   fillRandom(matrix, .0F, 1.0F);
 
   for (auto _ : state) {
+    benchmark::ClobberMemory();
     auto total = Matrix::ValueType{};
     for (size_t row = 0; row < matrix.rows(); row++) {
       for (size_t col = 0; col < matrix.cols(); col++) {
@@ -49,11 +53,12 @@ static void BM_RowMajor_sumElements(benchmark::State &state)
     benchmark::DoNotOptimize(total);
   }
 
+  state.SetBytesProcessed(matrix.size() * sizeof(Matrix::ValueType) * state.iterations());
   state.SetItemsProcessed(matrix.size() * state.iterations());
 }
 
 constexpr auto testMin = 1 << 4;
-constexpr auto testStep = 1 << 2;
+constexpr auto testStep = 1 << 8;
 constexpr auto testMax = testMin + 64 * testStep;
 
 BENCHMARK(BM_ColumnMajor_sumElements)
