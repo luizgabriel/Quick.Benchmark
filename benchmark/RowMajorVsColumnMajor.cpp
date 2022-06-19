@@ -58,13 +58,15 @@ static void BM_RowMajor_sumElements(benchmark::State &state)
 }
 
 constexpr auto testMin = 1 << 4;
-constexpr auto testStep = 1 << 8;
-constexpr auto testMax = testMin + 64 * testStep;
+constexpr auto testStep = 1 << 6;
+constexpr auto testMax = testMin + 32 * testStep;
 
 BENCHMARK(BM_ColumnMajor_sumElements)
   ->Complexity(benchmark::BigO::oNSquared)
+  ->Unit(benchmark::kMillisecond)
   ->DenseRange(testMin, testMax, testStep);
 
 BENCHMARK(BM_RowMajor_sumElements)
   ->Complexity(benchmark::BigO::oNSquared)
+  ->Unit(benchmark::kMillisecond)
   ->DenseRange(testMin, testMax, testStep);
